@@ -23,11 +23,7 @@ variables:
 trigger:
   - platform: "state"
     entity_id: !input 'switches'
-
-conditions:
-  - condition: "state"
-    entity_id: !input 'switches'
-    state: "on"
+    to: "on"
 
 action:
   - target:
