@@ -1,0 +1,37 @@
+blueprint:
+  name: Radio Buttons
+  description: >
+    Turn a group of switches into radio buttons. Of the 
+    group, only one switch can be on at a time. When any
+    switch is activated, all the others are deactivated.
+  domain: automation
+
+  input:
+    switches:
+      name: Switch Entites
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+variables:
+  switches: !input 'switches'
+  trigger_id: "{{ trigger.entity_id }}"
+  trigger_trigger: "{{ trigger }}"
+  switches_to_update: "{{ switches | reject('eq', trigger.entity_id) | list }}"
+
+trigger:
+  - platform: "state"
+    entity_id: !input 'switches'
+
+conditions:
+  - condition: "state"
+    state: "on"
+
+action:
+  - variables:
+  - target:
+      entity_id: "{{ switches_to_update }}"
+    data: {}
+    action: switch.turn_off
+mode: single
