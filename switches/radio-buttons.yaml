@@ -30,7 +30,6 @@ conditions:
     state: "on"
 
 action:
-  - variables:
   - target:
       entity_id: "{{ switches_to_update }}"
     data: {}
