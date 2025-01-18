@@ -24,22 +24,22 @@ blueprint:
         that controls a fan will turn the fan off, you probably don't want that
         switch state to ever really be "on" in home assistant. Therefore, add
         that switch as the off switch.
-      default: {}
+      default:
       selector:
         entity:
           domain: "switch"
           multiple: false
       
 variables:
-  switches: "!input 'switches'"
-  off_switch: "!input 'off_switch'"
+  switches: !input 'switches'
+  off_switch: !input 'off_switch'
   trigger_id: "{{ trigger.entity_id }}"
   trigger_trigger: "{{ trigger }}"
   switches_to_update: "{{ switches | reject('eq', trigger.entity_id) | list }}"
 
 trigger:
   - platform: "state"
-    entity_id: "!input 'switches'"
+    entity_id: !input 'switches'
     to: "on"
 
 action:
@@ -47,9 +47,10 @@ action:
       entity_id: "{{ switches_to_update }}"
     data: {}
     action: "switch.turn_off"
-  - condition: "{{ off_switch }}"
+  - condition: "template"
+    value_template: "{{ off_switch is not none }}"
   - target:
-    entity_id: "{{ off_switch }}"
+      entity_id: "{{ off_switch }}"
     data: {}
     action: "switch.turn_off"
   
