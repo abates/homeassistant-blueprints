@@ -1,33 +1,56 @@
 blueprint:
-  name: Radio Buttons
+  name: "Radio Buttons"
   description: >
     Turn a group of switches into radio buttons. Of the 
     group, only one switch can be on at a time. When any
     switch is activated, all the others are deactivated.
-  domain: automation
+  domain: "automation"
 
   input:
     switches:
-      name: Switch Entites
+      name: "Switch Entites"
+      description: >
+        The switches to group in a set where only one can be on at a time.
       selector:
         entity:
-          domain: switch
+          domain: "switch"
           multiple: true
-
+    off_switch:
+      name: "Off Switch"
+      description: >
+        In some cases, a button/switch in a group turns everything off. Likely
+        when this switch is "on" everything, including itself should be turned
+        off. An example of this is a fan controller. The off button for a keypad
+        that controls a fan will turn the fan off, you probably don't want that
+        switch state to ever really be "on" in home assistant. Therefore, add
+        that switch as the off switch.
+      default: {}
+      selector:
+        entity:
+          domain: "switch"
+          multiple: false
+      
 variables:
-  switches: !input 'switches'
+  switches: "!input 'switches'"
+  off_switch: "!input 'off_switch'"
   trigger_id: "{{ trigger.entity_id }}"
   trigger_trigger: "{{ trigger }}"
   switches_to_update: "{{ switches | reject('eq', trigger.entity_id) | list }}"
 
 trigger:
   - platform: "state"
-    entity_id: !input 'switches'
+    entity_id: "!input 'switches'"
     to: "on"
 
 action:
   - target:
       entity_id: "{{ switches_to_update }}"
     data: {}
-    action: switch.turn_off
+    action: "switch.turn_off"
+  - condition: "{{ off_switch }}"
+  - target:
+    entity_id: "{{ off_switch }}"
+    data: {}
+    action: "switch.turn_off"
+  
 mode: single
